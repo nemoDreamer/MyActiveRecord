@@ -1154,9 +1154,9 @@ class MyActiveRecord
    * Alias of find_linked()
    * @link find_linked()
    */
-  function find_attached($strClass, $strCondition=NULL)
+  function find_attached($strClass, $strCondition=NULL, $strOrder=NULL)
   {
-    return $this->find_linked($strClass, $strCondition);
+    return $this->find_linked($strClass, $strCondition, $strOrder);
   }
 
   /**

@@ -762,7 +762,7 @@ class MyActiveRecord
   function Update( $strClass, $id, $properties )
   {
     $object = MyActiveRecord::FindById($strClass, $id);
-    $object->populate(properties);
+    $object->populate($properties);
     return $object->save();
   }
 

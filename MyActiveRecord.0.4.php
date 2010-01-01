@@ -1128,7 +1128,7 @@ class MyActiveRecord
       $table = MyActiveRecord::Class2Table($strClass);
       $thistable = MyActiveRecord::Class2Table($this);
       $linktable=MyActiveRecord::GetLinkTable($table, $thistable);
-      $strOrder = $strOrder ? $strOrder: "{$strClass}.id";
+      $strOrder = $strOrder ? $strOrder: $table.'.id'; // CHANGED replaced wrongly cased $strClass by $table
       $sql= "SELECT `{$table}`.* FROM `{$table}` INNER JOIN `{$linktable}` ON `{$table}_id`=`{$table}`.`id` WHERE `$linktable`.`{$thistable}_id`={$this->id} ORDER BY $strOrder";
       if( is_array($mxdCondition) )
       {

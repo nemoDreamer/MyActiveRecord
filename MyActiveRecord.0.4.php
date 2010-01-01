@@ -305,7 +305,7 @@ class MyActiveRecord
     else
     // connect to database and run 'describe' query to get results
     {
-      if( $rscResult = MyActiveRecord::Query("SHOW COLUMNS FROM $strTable") )
+      if( $rscResult = MyActiveRecord::Query("SHOW COLUMNS FROM `$strTable`") )
       {
         $arrFields = array();
         while( $col = mysql_fetch_assoc($rscResult) )
@@ -458,7 +458,7 @@ class MyActiveRecord
     $table1=MyActiveRecord::Class2Table($obj1);
     $table2=MyActiveRecord::Class2Table($obj2);
     $linktable = MyActiveRecord::GetLinkTable($table1, $table2);
-    $sql = "INSERT INTO {$linktable} ({$table1}_id, {$table2}_id) VALUES ({$obj1->id}, {$obj2->id})";
+    $sql = "INSERT INTO `{$linktable}` (`{$table1}_id`, `{$table2}_id`) VALUES ({$obj1->id}, {$obj2->id})";
     if( MyActiveRecord::Query($sql) )
     {
       return true;
@@ -483,7 +483,7 @@ class MyActiveRecord
     $table1=MyActiveRecord::Class2Table($obj1);
     $table2=MyActiveRecord::Class2Table($obj2);
     $linktable = MyActiveRecord::GetLinkTable($table1, $table2);
-    $sql = "DELETE FROM {$linktable} WHERE {$table1}_id = {$obj1->id} AND {$table2}_id = {$obj2->id}";
+    $sql = "DELETE FROM `{$linktable}` WHERE `{$table1}_id`={$obj1->id} AND `{$table2}_id` = {$obj2->id}";
     if( MyActiveRecord::Query($sql) )
     {
       return true;
@@ -533,7 +533,7 @@ class MyActiveRecord
   function Count( $strClass, $strWhere='1=1' )
   {
     $table = MyActiveRecord::Class2Table($strClass);
-    $strSQL = "SELECT Count(id) AS count FROM $table WHERE $strWhere";
+    $strSQL = "SELECT Count(`id`) AS `count` FROM `$table` WHERE $strWhere";
     $rscResult = MyActiveRecord::Query($strSQL);
     if( $arr = mysql_fetch_array($rscResult) )
     {
@@ -609,7 +609,7 @@ class MyActiveRecord
   function FindAll( $strClass, $mxdWhere=NULL, $strOrderBy='id ASC', $intLimit=10000, $intOffset=0 )
   {
     $table = MyActiveRecord::Class2Table($strClass);
-    $strSQL = "SELECT * FROM $table";
+    $strSQL = "SELECT * FROM `$table`";
     if($mxdWhere)
     {
       $strWhere = ' WHERE ';
@@ -653,7 +653,7 @@ class MyActiveRecord
    * @param strOrderBy  optional SQL ORDER BY argument, eg: "username ASC"
    * @return  object, false if no objects found
    */
-  function FindFirst( $strClass, $strWhere=NULL, $strOrderBy='id ASC' )
+  function FindFirst( $strClass, $strWhere=NULL, $strOrderBy='`id` ASC' )
   {
     $arrObjects = MyActiveRecord::FindAll( $strClass, $strWhere, $strOrderBy, 1 );
     if( Count($arrObjects) )
@@ -686,7 +686,7 @@ class MyActiveRecord
     if( is_array($mxdID) )
     {
       $idlist = implode(', ', $mxdID);
-      return MyActiveRecord::FindAll( $strClass, "id IN ($idlist)" );
+      return MyActiveRecord::FindAll( $strClass, "`id` IN ($idlist)" );
     }
     else
     {
@@ -718,7 +718,7 @@ class MyActiveRecord
     $table = MyActiveRecord::Class2Table($strTable);
     $arr = array();
     $strOrder = $strOrder ? $strOrder:$strColumn;
-    $result = MyActiveRecord::Query("SELECT $strColumn, count(*) AS frequency FROM $table WHERE $strWhere GROUP BY $strColumn ORDER BY $strOrder LIMIT $intLimit");
+    $result = MyActiveRecord::Query("SELECT `$strColumn`, count(*) AS `frequency` FROM `$table` WHERE $strWhere GROUP BY `$strColumn` ORDER BY $strOrder LIMIT $intLimit");
     while( $row = mysql_fetch_row($result) )
     {
       $arr[$row[0]] = $row[1];
@@ -840,7 +840,7 @@ class MyActiveRecord
       // insert or update as required
       if( isset($this->id) )
       {
-        $sql="UPDATE `$table` SET ".implode($set, ", ")." WHERE id={$this->id}";
+        $sql="UPDATE `$table` SET ".implode($set, ", ")." WHERE `id`={$this->id}";
       }
       else
       {
@@ -897,7 +897,7 @@ class MyActiveRecord
   function destroy()
   {
     $table = MyActiveRecord::Class2Table($this);
-    return MyActiveRecord::Query( "DELETE FROM $table WHERE id ={$this->id}" );
+    return MyActiveRecord::Query( "DELETE FROM `$table` WHERE `$table`.`id`={$this->id}" );
   }
 
   /**
@@ -1086,7 +1086,7 @@ class MyActiveRecord
    *          eg: 'flagged=true' or array( 'flagged'=>1 );
    * @return  array array containing objects of class strClass
    */
-  function find_children($strClass, $mxdCondition=NULL, $strOrderBy='id ASC', $intLimit=10000, $intOffset=0, $strForeignKey=NULL)
+  function find_children($strClass, $mxdCondition=NULL, $strOrderBy='`id` ASC', $intLimit=10000, $intOffset=0, $strForeignKey=NULL)
   {
     // name of foreign key:
     $key = $strForeignKey ? $strForeignKey : strtolower( get_class($this).'_id' );
@@ -1129,7 +1129,7 @@ class MyActiveRecord
       $thistable = MyActiveRecord::Class2Table($this);
       $linktable=MyActiveRecord::GetLinkTable($table, $thistable);
       $strOrder = $strOrder ? $strOrder: "{$strClass}.id";
-      $sql= "SELECT {$table}.* FROM {$table} INNER JOIN {$linktable} ON {$table}_id = {$table}.id WHERE $linktable.{$thistable}_id = {$this->id} ORDER BY $strOrder";
+      $sql= "SELECT `{$table}`.* FROM `{$table}` INNER JOIN `{$linktable}` ON `{$table}_id`=`{$table}`.`id` WHERE `$linktable`.`{$thistable}_id`={$this->id} ORDER BY $strOrder";
       if( is_array($mxdCondition) )
       {
         foreach($mxdCondition as $key=>$val)

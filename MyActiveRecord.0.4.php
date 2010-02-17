@@ -106,7 +106,7 @@ class MyActiveRecord
    * @static
    * @return  resource  mysql connection
    */
-  function Connection()
+  static function Connection()
   {
     // conserve connection resource
     static $rscMySQL;
@@ -146,7 +146,7 @@ class MyActiveRecord
    * @param mxd Args  multiple arguments to be substituted into arguments. See sprintf documentation.
    * @return  string  escaped sql string
   */
-  function Prepare()
+  static function Prepare()
   {
     $args = func_get_args();
     $rawsql = array_shift($args);
@@ -163,7 +163,7 @@ class MyActiveRecord
    * @param string  strSQL  A SQL statement
    * @return  resource  A MySQL result resource. False on failure.
    */
-  function Query($strSQL)
+  static function Query($strSQL)
   {
     // log query
     if(defined('MYACTIVERECORD_LOG_SQL_TO') && MYACTIVERECORD_LOG_SQL_TO)
@@ -192,7 +192,7 @@ class MyActiveRecord
    * @param int intTimeStamp  A unix timestamp
    * @return  string  mysql format date string
    */
-  function DbDate($intTimeStamp=null)
+  static function DbDate($intTimeStamp=null)
   {
     return date('Y-m-d', $intTimeStamp ? $intTimestamp:mktime() );
   }
@@ -203,7 +203,7 @@ class MyActiveRecord
    * @param int intTimeStamp  A unix timestamp
    * @return  string  mysql format datetime string
    */
-  function DbDateTime($intTimeStamp=null)
+  static function DbDateTime($intTimeStamp=null)
   {
     return date('Y-m-d H:i:s', $intTimeStamp ? $intTimeStamp:mktime() );
   }
@@ -214,7 +214,7 @@ class MyActiveRecord
    * @param string  mysql datetime
    * @return  int unix timestamp
    */
-  function TimeStamp($strMySQLDate)
+  static function TimeStamp($strMySQLDate)
   {
     return strtotime($strMySQLDate);
   }
@@ -224,7 +224,7 @@ class MyActiveRecord
   * @static
   * @return array   names of tables in database
   */
-  function Tables()
+  static function Tables()
   {
     static $tables = array();
     if( !count($tables) )
@@ -245,7 +245,7 @@ class MyActiveRecord
   * @param  string  strTable  name of table to check for
   * @return bool  true/false
   */
-  function TableExists($strTable)
+  static function TableExists($strTable)
   {
     return in_array( $strTable, MyActiveRecord::Tables() );
   }
@@ -257,7 +257,7 @@ class MyActiveRecord
   * @return string  name of table in database representing class(string) or object
   *     false if no table found
   */
-  function Class2Table($mxd)
+  static function Class2Table($mxd)
   {
     $origClass = is_object($mxd) ? get_class($mxd) : $mxd;
     class_exists($origClass)
@@ -289,7 +289,7 @@ class MyActiveRecord
    * @param string  strTable  The name of the database table
    * @return  array Table columns. False if the table does not exist.
    */
-  function Columns($strTable)
+  static function Columns($strTable)
   {
 
     $strTable = MyActiveRecord::class2Table($strTable);
@@ -334,7 +334,7 @@ class MyActiveRecord
    * @return  string  Field type (e.g. 'int'|'float'|'date'|'char'|'text' ).
    *          False if not found.
    */
-  function GetType($strTable, $strField)
+  static function GetType($strTable, $strField)
   {
     $fields = MyActiveRecord::Columns($strTable);
     if( isset($fields[$strField]['Type']) )
@@ -358,7 +358,7 @@ class MyActiveRecord
    * @param string  strField  Name of field in table
    * @return  integer Maximum length of field. False if not found.
    */
-  function GetLen($strTable, $strField)
+  static function GetLen($strTable, $strField)
   {
     $fields=MyActiveRecord::Columns($strTable);
     if( isset($fields[$strField]['Type']) )
@@ -382,7 +382,7 @@ class MyActiveRecord
    * @param string  strField  Name of field in table
    * @return  boolean True if this field allows nulls. False if not.
    */
-  function AllowNull($strTable, $strField)
+  static function AllowNull($strTable, $strField)
   {
     $fields=MyActiveRecord::Columns($strTable);
     if( isset($fields[$strField]['Null']) )
@@ -403,7 +403,7 @@ class MyActiveRecord
    * @param mixed mixVal  value, eg: true, 1, 'elephant' etc.
    * @return  mixed escaped value eg: 1, 'o\'reilly' etc.
    */
-  function Escape($mixVal)
+  static function Escape($mixVal)
   {
     // clean whitespace
     $val = trim( $mixVal );
@@ -437,7 +437,7 @@ class MyActiveRecord
    * @param string  strClass2 name of second class/table e.g. 'Role'
    * @return  string  name of linking table
    */
-  function GetLinkTable($strClass1, $strClass2)
+  static function GetLinkTable($strClass1, $strClass2)
   {
     $array = array( MyActiveRecord::Class2Table($strClass1), MyActiveRecord::Class2Table($strClass2) );
     sort($array);
@@ -453,7 +453,7 @@ class MyActiveRecord
    * @return  boolean true on success, false on failure
    * @see GetLinkTable()
    */
-  function Link(&$obj1, &$obj2)
+  static function Link(&$obj1, &$obj2)
   {
     $table1=MyActiveRecord::Class2Table($obj1);
     $table2=MyActiveRecord::Class2Table($obj2);
@@ -478,7 +478,7 @@ class MyActiveRecord
    * @param $obj2 An Object from a subclass of MyActiveRecord
    * @return  true on success, false on failure
    */
-  function UnLink(&$obj1, &$obj2)
+  static function UnLink(&$obj1, &$obj2)
   {
     $table1=MyActiveRecord::Class2Table($obj1);
     $table2=MyActiveRecord::Class2Table($obj2);
@@ -507,7 +507,7 @@ class MyActiveRecord
    * @param strClass, the name of the subclass.
    * @return  object  of class strClass
    */
-  function &Create($strClass, $arrVals = null)
+  static function &Create($strClass, $arrVals = null)
   {
     $obj = new $strClass();
     foreach( MyActiveRecord::Columns( $strClass ) as $key=>$field )
@@ -530,7 +530,7 @@ class MyActiveRecord
    * @param string  strClass, the name of the class for which you want to create an object.
    * @return  integer Count. False if the query fails.
    */
-  function Count( $strClass, $strWhere='1=1' )
+  static function Count( $strClass, $strWhere='1=1' )
   {
     $table = MyActiveRecord::Class2Table($strClass);
     $strSQL = "SELECT Count(`id`) AS `count` FROM `$table` WHERE $strWhere";
@@ -558,7 +558,7 @@ class MyActiveRecord
    * @param string  strSQL  The SQL query
    * @return  array array of objects of class strClass
    */
-  function FindBySql( $strClass, $strSQL, $strIndexBy='id' )
+  static function FindBySql( $strClass, $strSQL, $strIndexBy='id' )
   {
 
     static $cache = array();
@@ -606,7 +606,7 @@ class MyActiveRecord
    * @param string  intOffset optional integer to offset the first record brought back
    * @return  array Array of objects. Array is empty if no ojbects found
    */
-  function FindAll( $strClass, $mxdWhere=NULL, $strOrderBy='id ASC', $intLimit=10000, $intOffset=0 )
+  static function FindAll( $strClass, $mxdWhere=NULL, $strOrderBy='id ASC', $intLimit=10000, $intOffset=0 )
   {
     $table = MyActiveRecord::Class2Table($strClass);
     $strSQL = "SELECT * FROM `$table`";
@@ -653,7 +653,7 @@ class MyActiveRecord
    * @param strOrderBy  optional SQL ORDER BY argument, eg: "username ASC"
    * @return  object, false if no objects found
    */
-  function FindFirst( $strClass, $strWhere=NULL, $strOrderBy='`id` ASC' )
+  static function FindFirst( $strClass, $strWhere=NULL, $strOrderBy='`id` ASC' )
   {
     $arrObjects = MyActiveRecord::FindAll( $strClass, $strWhere, $strOrderBy, 1 );
     if( Count($arrObjects) )
@@ -681,7 +681,7 @@ class MyActiveRecord
    * @param mixed mxdID integer or array of integers
    * @return  mixed object, or array of objects
    */
-  function FindById( $strClass, $mxdID )
+  static function FindById( $strClass, $mxdID )
   {
     if( is_array($mxdID) )
     {
@@ -713,7 +713,7 @@ class MyActiveRecord
   * @param  integer limit   optional sql LIMIT to number of rows returned
   * @return array   array with keys containing distinct values and values containing totals
   */
-  function FreqDist($strTable, $strColumn, $strWhere='1=1', $strOrder=null, $intLimit=1000)
+  static function FreqDist($strTable, $strColumn, $strWhere='1=1', $strOrder=null, $intLimit=1000)
   {
     $table = MyActiveRecord::Class2Table($strTable);
     $arr = array();
@@ -739,7 +739,7 @@ class MyActiveRecord
   * @param  array properties  array/hash of properties for object/row
   * @return boolean true or false depending upon whether insert is successful
   */
-  function Insert( $strClass, $properties )
+  static function Insert( $strClass, $properties )
   {
     $object = MyActiveRecord::Create($strClass, $properties);
     return $object->save;
@@ -759,7 +759,7 @@ class MyActiveRecord
   * @param  arrray  properties  array/hash of properties for object/row
   * @param  boolean true or false depending upon whether update is sucessful
   */
-  function Update( $strClass, $id, $properties )
+  static function Update( $strClass, $id, $properties )
   {
     $object = MyActiveRecord::FindById($strClass, $id);
     $object->populate($properties);
@@ -770,7 +770,7 @@ class MyActiveRecord
   * Static method to begin a transaction
   * @static
   */
-  function Begin()
+  static function Begin()
   {
     MyActiveRecord::Query('BEGIN');
   }
@@ -779,7 +779,7 @@ class MyActiveRecord
   * Static method to roll back a transaction
   * @static
   */
-  function RollBack()
+  static function RollBack()
   {
     MyActiveRecord::Query('ROLLBACK');
   }
@@ -788,7 +788,7 @@ class MyActiveRecord
   * Static method to commit a transaction
   * @static
   */
-  function Commit()
+  static function Commit()
   {
     MyActiveRecord::Query('COMMIT');
   }
@@ -808,7 +808,7 @@ class MyActiveRecord
    *
    * @return  boolean true on success false on fail
    */
-  function save()
+  public function save()
   {
     // if this object has registered errors, we back off and return false.
     if( $this->get_errors() )
@@ -868,7 +868,7 @@ class MyActiveRecord
    * @param array $arrVals
    * @return  boolean true if $arrVals is valid array, false if not
    */
-  function populate($arrVals)
+  public function populate($arrVals)
   {
     if( is_array($arrVals) )
     {
@@ -894,7 +894,7 @@ class MyActiveRecord
    *
    * @return  boolean True on success, False on failure
    */
-  function destroy()
+  public function destroy()
   {
     $table = MyActiveRecord::Class2Table($this);
     return MyActiveRecord::Query( "DELETE FROM `$table` WHERE `$table`.`id`={$this->id}" );
@@ -904,7 +904,7 @@ class MyActiveRecord
    * alias of destroy()
    * @see destroy()
    */
-  function delete()
+  public function delete()
   {
     return $this->destroy();
   }
@@ -921,7 +921,7 @@ class MyActiveRecord
    * @param properties array  optional array of properties for new object
    * @return  object  object of class 'strClass'
    */
-  function add_child($strClass, $properties=null)
+  public function add_child($strClass, $properties=null)
   {
     $object = MyActiveRecord::Create($strClass, $properties);
     $key = MyActiveRecord::Class2Table($this)."_id";
@@ -943,7 +943,7 @@ class MyActiveRecord
    * @param object  $obj  the object you wish to attach
    * @return  boolean True on success. False on failure.
    */
-  function attach(&$obj)
+  public function attach(&$obj)
   {
     if( $this->id && $obj->id )
     {
@@ -972,7 +972,7 @@ class MyActiveRecord
    *
    * @param object  $obj  object to be detached
    */
-  function detach(&$obj)
+  public function detach(&$obj)
   {
     return MyActiveRecord::UnLink($this, $obj);
   }
@@ -991,7 +991,7 @@ class MyActiveRecord
    * @param array arrID   array of object IDs
    * @return  boolean True on success. False on failure.
    */
-  function set_attached($strClass, $arrID)
+  public function set_attached($strClass, $arrID)
   {
     if( is_array($arrID) )
     {
@@ -1021,7 +1021,7 @@ class MyActiveRecord
   * @param  string  strKey  property to be set
   * @param  int intTimeStamp  unix timestamp
   */
-  function set_date($strKey, $intTimeStamp=null)
+  public function set_date($strKey, $intTimeStamp=null)
   {
     $this->$strKey = MyActiveRecord::DbDate($intTimeStamp);
   }
@@ -1031,7 +1031,7 @@ class MyActiveRecord
   * @param  string  strKey  property to be set
   * @param  int intTimeStamp  unix timestamp
   */
-  function set_datetime($strKey, $intTimeStamp=null)
+  public function set_datetime($strKey, $intTimeStamp=null)
   {
     $this->$strKey = MyActiveRecord::DbDateTime($intTimeStamp);
   }
@@ -1040,7 +1040,7 @@ class MyActiveRecord
   * Retrieves a date or datetime fields as a unix timestamp
   * @param  string  strKey  property to be retrieved
   */
-  function get_timestamp($strKey)
+  public function get_timestamp($strKey)
   {
     return MyActiveRecord::TimeStamp($this->$strKey);
   }
@@ -1060,7 +1060,7 @@ class MyActiveRecord
    * @param string  strForeignKey Optional specification of foreign key at runtime
    * @return  object  object of class strClass
    */
-  function find_parent($strClass, $strForeignKey=NULL)
+  public function find_parent($strClass, $strForeignKey=NULL)
   {
     $key = $strForeignKey or $key=strtolower( $strClass.'_id' );
     return MyActiveRecord::FindById($strClass, $this->$key);
@@ -1086,7 +1086,7 @@ class MyActiveRecord
    *          eg: 'flagged=true' or array( 'flagged'=>1 );
    * @return  array array containing objects of class strClass
    */
-  function find_children($strClass, $mxdCondition=NULL, $strOrderBy='`id` ASC', $intLimit=10000, $intOffset=0, $strForeignKey=NULL)
+  public function find_children($strClass, $mxdCondition=NULL, $strOrderBy='`id` ASC', $intLimit=10000, $intOffset=0, $strForeignKey=NULL)
   {
     // name of foreign key:
     $key = $strForeignKey ? $strForeignKey : strtolower( get_class($this).'_id' );
@@ -1120,7 +1120,7 @@ class MyActiveRecord
    * @return  array array containing objects of class strClass
    *
    */
-  function find_linked($strClass, $mxdCondition=null, $strOrder=null)
+  public function find_linked($strClass, $mxdCondition=null, $strOrder=null)
   {
     if($this->id)
     {
@@ -1154,7 +1154,7 @@ class MyActiveRecord
    * Alias of find_linked()
    * @link find_linked()
    */
-  function find_attached($strClass, $strCondition=NULL, $strOrder=NULL)
+  public function find_attached($strClass, $strCondition=NULL, $strOrder=NULL)
   {
     return $this->find_linked($strClass, $strCondition, $strOrder);
   }
@@ -1174,7 +1174,7 @@ class MyActiveRecord
    * @param string  strMessage  a message, which you may want to report back to the user in due course
    * @return  void
    */
-  function add_error($strKey, $strMessage)
+  public function add_error($strKey, $strMessage)
   {
     if(!isset($this->_errors)) $this->_errors = array();
     $this->_errors[$strKey] = $strMessage;
@@ -1186,7 +1186,7 @@ class MyActiveRecord
    * @param string  strKey  name of field/attribute/key
    * @return  string  Error Message. False if no error
    */
-  function get_error($strKey)
+  public function get_error($strKey)
   {
     if( isset($this->_errors[$strKey]) )
     {
@@ -1204,7 +1204,7 @@ class MyActiveRecord
    * @return  array Array of errors, keyed by attribute.
    *          False if there are no errors.
    */
-  function get_errors()
+  public function get_errors()
   {
     if( isset($this->_errors) && is_array($this->_errors) )
     {
@@ -1226,7 +1226,7 @@ class MyActiveRecord
    * @param string  strMessage  Error message to record if value does not match
    * @return  boolean True if the field matches. False if it does not match.
    */
-  function validate_regexp($strKey, $strRegExp, $strMessage=null)
+  public function validate_regexp($strKey, $strRegExp, $strMessage=null)
   {
     if( preg_match($strRegExp, $this->$strKey) )
     {
@@ -1247,7 +1247,7 @@ class MyActiveRecord
    * @param string  strMessage  Error message to record if value is not unique
    * @return  boolean true if field is unique, false if not
   */
-  function validate_uniqueness_of($strKey, $strMessage=null)
+  public function validate_uniqueness_of($strKey, $strMessage=null)
   {
     if ( MyActiveRecord::Count( get_class($this), "$strKey = '{$this->$strKey}'" ) > 0 )
     {
@@ -1267,12 +1267,12 @@ class MyActiveRecord
    *  <? print $user->h('name') ?>
    * </code>
   */
-  function h($key)
+  public function h($key)
   {
     return htmlentities($this->$key);
   }
 
-  function to_str()
+  public function to_str()
   {
     return get_class($this).' '.$this->id;
   }

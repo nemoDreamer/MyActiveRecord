@@ -1129,7 +1129,7 @@ class MyActiveRecord
       $thistable = MyActiveRecord::Class2Table($this);
       $linktable=MyActiveRecord::GetLinkTable($table, $thistable);
       $strOrder = $strOrder ? $strOrder: $table.'.id'; // CHANGED replaced wrongly cased $strClass by $table
-      $sql= "SELECT `{$table}`.* FROM `{$table}` INNER JOIN `{$linktable}` ON `{$table}_id`=`{$table}`.`id` WHERE `$linktable`.`{$thistable}_id`={$this->id} ORDER BY $strOrder";
+      $sql= "SELECT `{$table}`.* FROM `{$table}` INNER JOIN `{$linktable}` ON `{$table}_id`=`{$table}`.`id` WHERE `$linktable`.`{$thistable}_id`={$this->id}";
       if( is_array($mxdCondition) )
       {
         foreach($mxdCondition as $key=>$val)
@@ -1142,6 +1142,7 @@ class MyActiveRecord
       {
         if($mxdCondition) $sql.=" AND $mxdCondition";
       }
+      $sql .= " ORDER BY $strOrder";
       return MyActiveRecord::FindBySql($strClass, $sql);
     }
     else
